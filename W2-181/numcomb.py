@@ -74,7 +74,7 @@ def gameEval(vars):
                 else:
                     print("Wrong Input!")
                     return
-                comb, id = step(comb, lines, vars, cardList[0], 1)
+                comb, id, advice = step(comb, lines, vars, cardList[0], 1)
                 print(advice)
                 comb[id] = [0, 0, 0]
                 # 输入本轮放置位置
@@ -180,6 +180,7 @@ def step(comb, lines, vars, now, advice=0):
         # 输出前三大的数和下标
         for i, idx in enumerate(top_3_idx):
             info.append([idx, vals[idx]])
+            print(vals[idx])
         adviceR = getAdvice(info)
         return comb, z, adviceR
 

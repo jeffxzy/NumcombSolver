@@ -61,7 +61,11 @@ def main():
                         x0 = copy.deepcopy(bestx0)
 
         elif type == 'test':
-            f(x0, 500)
+            times = int(input('input times:'))
+            if times <= 0:
+                print('Wrong times input')
+                return
+            f(x0, times)
         elif type == 'eval':
             numcomb.gameEval(x0)
         elif type == 'play':

@@ -2,6 +2,7 @@ from scipy.optimize import minimize
 import numcomb
 import numpy as np
 import copy
+import math
 
 def f(x, times = 1000):
     score = 0
@@ -24,12 +25,11 @@ def main():
 
         # x0 = np.array([1.00, 0.65, 0.30, 0.10, 0.07, 0.03])
         x0 = np.array([1.00, 0.721, 0.363, 0.177, 0.069, 0.024,
-                       2.00, 0.20, 0.15, 0.32])
+                       0.50, 0.03, 0.01, 0.1])
         # x0: [1, 0.66068835, 0.30203273, 0.100673, 0.07100848, 0.03095212]
 
         if type == 'train':
-            bounds = [(0, 1), (0, 1), (0, 1), (0, 1), (0, 1), (0, 1),
-                      (0, 2), (0, 1), (0, 1), (0, 1)]
+            bounds = [(0, 1), (0, 1), (0, 1), (0, 1), (0, 1), (0, 1)]
 
             res = minimize(lambda vars: -f(vars),
                            x0,
@@ -41,10 +41,14 @@ def main():
             print("Optimized result: ", -res.fun) # res.fun is the negative of the optimized result
 
         elif type == 'bf':
+            tt = int(input('input times:'))
+            if tt <= 0:
+                print('Wrong times input')
+                return
             best, bestx0 = 0, []
             for item in range(0, 100):
-                for times in range(1, 3):
-                    for i in range(1, 6):
+                for times in range(2, 4):
+                    for i in range(10, 11):
                         best = 0
                         now = x0[i]
                         step = now
@@ -52,7 +56,7 @@ def main():
                             step = step / 10
                         for j in range(-5, 6):
                             x0[i] = now + j * step
-                            score = f(x0, 3000)
+                            score = f(x0, tt)
                             # print(score, ' --> ', x0)
                             if score > best:
                                 best, bestx0 = score, copy.deepcopy(x0)
@@ -62,7 +66,11 @@ def main():
                         x0 = copy.deepcopy(bestx0)
 
         elif type == 'test':
-            f(x0, 50000)
+            times = int(input('input times:'))
+            if times <= 0:
+                print('Wrong times input')
+                return
+            f(x0, times)
         elif type == 'eval':
             numcomb.gameEval(x0)
         elif type == 'play':

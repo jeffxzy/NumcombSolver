@@ -189,6 +189,7 @@ def expScore(comb, lines, vars):
     decide = []
     for i in range(0, 20):
         decide.append([0, 0])
+    needs = [0] * 10
 
 
     # 对于每一行
@@ -198,12 +199,12 @@ def expScore(comb, lines, vars):
 
         sum = sum + scale * score
 
-        # 越后期，已连通的价值越高。实测没有用。
+        # 越后期，已连通的价值越高。
         if status != 'full':
             sum = sum - scale * (1 - math.pow(0.993, blockCount)) * score
 
         if blockCount < 10:
-        # 尽可能使得游戏开局没有相邻元素，变量var[7]。实测没有用。
+        # 尽可能使得游戏开局没有相邻元素，变量var[7]。
             if status == 'partial':
                 if num == lastnum and num != 10:
                     sum = sum - lastscore * vars[7]
@@ -216,37 +217,39 @@ def expScore(comb, lines, vars):
             else:
                 lastnum = 0
                 lastscore = 0
-        # 尽可能使得游戏开局不破坏行。实测没有用。
+        # 尽可能使得游戏开局不破坏行。
         if blockCount < 10:
             if status == 'broken':
                 sum = sum - math.pow(num, 0.5)
-        # 尽可能使得游戏开局不一次开太多行，变量var[6]。实测没有用。
+        # 尽可能使得游戏开局不一次开太多行，变量var[6]。
         if num != 0 and num != 10 and status == 'partial':
-            if length - filled < 3:
-                desired[num] = desired[num] + length - filled
-                waiting[num] = waiting[num] + scale * score
-        # 降低交错点的期望得分，变量var[7], var[8]。实测没有用。
-        if status == 'partial' and length - filled == 1:
+            desired[num] = desired[num] + length - filled
+            waiting[num] = waiting[num] + scale * score
+        # 降低交错点的期望得分，变量var[7], var[8]。
+        if status == 'partial':
             for j in range(2, 2 + length):
                 if comb[lines[i][j]] == [0, 0, 0]:
                     decide[lines[i][j]][0] = decide[lines[i][j]][0] + 1
                     decide[lines[i][j]][1] = decide[lines[i][j]][1] + scale * score
+        # 计算每个数字有多少行
+        if num != 0 and num != 10:
+            needs[num] = needs[num] + 1
+        #         if needs[num] == 3:
+        #             sum = sum - scale * score * vars[6]
 
-    # 降低交错点得分比例
-    if blockCount > 15:
-        for i in range(1, 10):
-            scale = (desired[i] * vars[6] / 10) * (desired[i] * vars[6] / 10)
-            if desired[i] < 5:
-                scale = 0
-            sum = sum - scale * waiting[i]
+    # 降低多排得分比例
+    for i in range(1, 10):
+        scale = math.pow(desired[i] * vars[6] / 10, 2)
+        if desired[i] < 5 or needs[i] < 3:
+            scale = 0
+        sum = sum - scale * waiting[i]
 
-        scale = (blockCount / 20) * (blockCount / 20)
-        for i in range(0, 20):
-            if decide[i][0] == 2:
-                sum = sum - scale * vars[8] * decide[i][1]
-            if decide[i][0] == 3:
-                sum = sum - scale * vars[9] * decide[i][1]
-
+    scale = math.pow(blockCount / 20, 2)
+    for i in range(0, 20):
+        if decide[i][0] == 2:
+            sum = sum - scale * vars[8] * decide[i][1]
+        if decide[i][0] == 3:
+            sum = sum - scale * vars[9] * decide[i][1]
 
     return sum
 
