@@ -241,6 +241,11 @@ def expScore(comb, lines, vars):
         sum = sum - scale * waiting[i]
     # 降低交点牌得分概率
     scale = math.pow(blockCount / 20, 2)
+    times = 0.4
+    for i in range(0, 20):
+        if comb[i] == [10, 10, 10]:
+            times = 1
+    scale = scale * times
     for i in range(0, 20):
         if decide[i][0] == 2:
             sum = sum - scale * vars[8] * decide[i][1]
