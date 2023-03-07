@@ -7,10 +7,10 @@ import math
 def f(x, times = 1000):
     score = 0
     for i in range(0, times):
-        if (i + 1) % 5000 == 0:
-            print('5000 times finished')
+        if (i + 1) % 3000 == 0:
+            print('Trained finished for ' + str(i + 1) + ' tests: avescore = ', score / (i + 1))
         score = score + numcomb.gameTrain(x)
-    print('\n--------------------\nTrained finished for ' + str(times) + ' tests: avescore = ', score/times)
+    print('\n--------------------\nTrained finished for ' + str(times) + ' tests: avescore = ', score/times, '\n')
     return score/times
 
 

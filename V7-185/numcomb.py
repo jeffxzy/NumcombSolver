@@ -109,7 +109,8 @@ def init():
         if cardList[i] == [10, 10, 10]:
             ok = 1
     if ok == 0:
-        random.shuffle(cardList)
+        for i in range(0, 20):
+            cardList[i], cardList[i + 20] = cardList[i + 20], cardList[i]
 
     # 初始化每一“行”。lines中的每个元素意思为：该行长度 该行类别（左上右下 上下 右上左下） 后方是该行经过的格子
     lines = []
@@ -203,15 +204,12 @@ def expScore(comb, lines, vars):
         if status != 'full':
             sum = sum - scale * (1 - math.pow(0.993, blockCount)) * score
 
-        if blockCount < 10:
         # 尽可能使得游戏开局没有相邻元素，变量var[7]。
+        if blockCount < 10:
             if status == 'partial':
-                if num == lastnum and num != 10:
+                if num == lastnum and num != 0 and num != 10:
                     sum = sum - lastscore * vars[7]
-                    sum = sum - math.pow(lastnum, 0.5)
-                    if i == 14:
-                        sum = sum - scale * score * vars[7]
-                        sum = sum - math.pow(lastnum / 2, 0.5)
+                    sum = sum - math.pow(lastnum / 2, 0.5)
                 lastnum = num
                 lastscore = scale * score
             else:
@@ -225,7 +223,7 @@ def expScore(comb, lines, vars):
         if num != 0 and num != 10 and status == 'partial':
             desired[num] = desired[num] + length - filled
             waiting[num] = waiting[num] + scale * score
-        # 降低交错点的期望得分，变量var[7], var[8]。
+        # 降低交错点的期望得分，变量var[8], var[9]。
         if status == 'partial':
             for j in range(2, 2 + length):
                 if comb[lines[i][j]] == [0, 0, 0]:
@@ -234,8 +232,6 @@ def expScore(comb, lines, vars):
         # 计算每个数字有多少行
         if num != 0 and num != 10:
             needs[num] = needs[num] + 1
-        #         if needs[num] == 3:
-        #             sum = sum - scale * score * vars[6]
 
     # 降低多排得分比例
     for i in range(1, 10):
@@ -243,7 +239,7 @@ def expScore(comb, lines, vars):
         if desired[i] < 5 or needs[i] < 3:
             scale = 0
         sum = sum - scale * waiting[i]
-
+    # 降低交点牌得分概率
     scale = math.pow(blockCount / 20, 2)
     for i in range(0, 20):
         if decide[i][0] == 2:
