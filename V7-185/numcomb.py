@@ -172,11 +172,6 @@ def step(comb, lines, vars, now, small = 0):
 def expScore(comb, lines, vars):
 
     sum = 0
-    # 计算0方块的分数
-    if comb[0] == [0, 0, 0]:
-        sum = sum + 18
-    else:
-        sum = sum + (comb[0][0] + comb[0][1] + comb[0][2]) * 1
     # 当前已经放下几块
     blockCount = 0
     for i in range(0, 20):
@@ -185,13 +180,21 @@ def expScore(comb, lines, vars):
 
     lastnum = 0
     lastscore = 0
+    selected = [0] * 11
     desired = [0] * 10
     waiting = [0] * 10
     decide = []
     for i in range(0, 20):
         decide.append([0, 0])
     needs = [0] * 10
+    lineNeeds = [0] * 15
 
+
+    # 计算0方块的分数
+    if comb[0] == [0, 0, 0]:
+        sum = sum + vars[10]
+    else:
+        sum = sum + (comb[0][0] + comb[0][1] + comb[0][2]) * 1
 
     # 对于每一行
     for i in range(0, 15):
@@ -232,6 +235,8 @@ def expScore(comb, lines, vars):
         # 计算每个数字有多少行
         if num != 0 and num != 10:
             needs[num] = needs[num] + 1
+        # 记录该行需要多少方块
+        lineNeeds[i] = lineNeeds[i] + 1
 
     # 降低多排得分比例
     for i in range(1, 10):
@@ -251,7 +256,7 @@ def expScore(comb, lines, vars):
             sum = sum - scale * vars[8] * decide[i][1]
         if decide[i][0] == 3:
             sum = sum - scale * vars[9] * decide[i][1]
-
+    
     return sum
 
 

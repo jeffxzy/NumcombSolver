@@ -7,9 +7,9 @@ import math
 def f(x, times = 1000):
     score = 0
     for i in range(0, times):
+        score = score + numcomb.gameTrain(x)
         if (i + 1) % 3000 == 0:
             print('Trained finished for ' + str(i + 1) + ' tests: avescore = ', score / (i + 1))
-        score = score + numcomb.gameTrain(x)
     print('\n--------------------\nTrained finished for ' + str(times) + ' tests: avescore = ', score/times, '\n')
     return score/times
 
@@ -25,7 +25,7 @@ def main():
 
         # x0 = np.array([1.00, 0.65, 0.30, 0.10, 0.07, 0.03])
         x0 = np.array([1.00, 0.721, 0.3993, 0.1947, 0.069, 0.0312,
-                       0.75, 0.03, 0.01, 0.1])
+                       0.75, 0.03, 0.08465, 0.08164, 18])
         # x0: [1, 0.66068835, 0.30203273, 0.100673, 0.07100848, 0.03095212]
 
         if type == 'train':
@@ -48,7 +48,7 @@ def main():
             best, bestx0 = 0, []
             for item in range(0, 100):
                 for times in range(1, 3):
-                    for i in range(6, 10):
+                    for i in range(10, 11):
                         best = 0
                         now = x0[i]
                         step = now
