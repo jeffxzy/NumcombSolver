@@ -8,7 +8,7 @@ def f(x, times = 1000):
     score = 0
     for i in range(0, times):
         score = score + numcomb.gameTrain(x)
-        if (i + 1) % 3000 == 0:
+        if (i + 1) % 1 == 0:
             print('Trained finished for ' + str(i + 1) + ' tests: avescore = ', score / (i + 1))
     print('\n--------------------\nTrained finished for ' + str(times) + ' tests: avescore = ', score/times, '\n')
     return score/times

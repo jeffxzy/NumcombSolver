@@ -1,4 +1,5 @@
 # NumcombSolver
+游戏“数字蜂巢”的求解器
 A solver for game numcomb
 
 ## Tutorial

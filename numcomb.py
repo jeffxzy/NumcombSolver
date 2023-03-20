@@ -8,7 +8,8 @@ def gameTrain(vars):
     comb, cardList, lines = init()
     # 放置每张牌
     for cid in range(0, 20):
-        comb, id = step(comb, lines, vars, cardList[cid])
+        id, score = step(comb, lines, vars, cardList[cid])
+        comb[id] = cardList[cid]
     # 计算总分
     score = expScore(comb, lines, vars)
     return score
@@ -30,7 +31,8 @@ def gamePlay(vars):
         else:
             print("Wrong Input!")
             return 0
-        comb, id = step(comb, lines, vars, cardList[cid], 1)
+        id, score = step(comb, lines, vars, cardList[cid], 1)
+        comb[id] = cardList[cid]
         # 输出本轮放置位置
         print(id)
     
@@ -73,7 +75,7 @@ def gameEval(vars):
                 else:
                     print("Wrong Input!")
                     return
-                comb, id = step(comb, lines, vars, cardList[0], 1)
+                id, score = step(comb, lines, vars, cardList[0], 1)
                 comb[id] = [0, 0, 0]
                 # 输入本轮放置位置
                 id = int(input("实际放入："))
@@ -135,14 +137,38 @@ def init():
     return comb, cardList, lines
 
 # 执行一步蜂巢
-def step(comb, lines, vars, now, small = 0):
+def step(comb, lines, vars, now, small = 0, depth = 0):
     exp = []
-    for i in range(0, 20):
+    for x in range(0, 20):
         # 计算将该块放到每个位置的期望分数
-        if comb[i] == [0, 0, 0]:
-            comb[i] = now
-            exp.append(expScore(comb, lines, vars))
-            comb[i] = [0, 0, 0]
+        if comb[x] == [0, 0, 0]:
+            comb[x] = now
+            # 递归求解。条件：不是最后一块（有后续块且没到最大深度）
+            if comb.count([0, 0, 0]) > 1 and depth < 1:
+                cases = 0
+                scoreSum = 0
+                # 对所有还没有出现的方块
+                for i in [3, 4, 8]:
+                    for j in [1, 5, 9]:
+                        for k in [2, 6, 7]:
+                            c = comb.count([i, j, k])
+                            cases += 2 - c
+                            if 2 - c != 0:
+                                id, score = step(comb, lines, vars, [i, j, k], depth = depth + 1)
+                                scoreSum += score * (2 - c)
+                c = comb.count([10, 10, 10])
+                for times in range(0, 2 - c):
+                    cases += 2 - c
+                    if 2 - c != 0:
+                        id, score = step(comb, lines, vars, [10, 10, 10], depth = depth + 1)
+                        scoreSum += score * (2 - c)
+                
+                exp.append(scoreSum / cases)
+            # 已经超过迭代次数
+            else:
+                exp.append(expScore(comb, lines, vars))
+            
+            comb[x] = [0, 0, 0]
         else:
             exp.append(-1)
     # 放到期望分数最大的位置
@@ -151,7 +177,6 @@ def step(comb, lines, vars, now, small = 0):
     for i in range(0, 20):
         if exp[i] == mx:
             break
-    comb[i] = now
 
     z = i
 
@@ -165,7 +190,7 @@ def step(comb, lines, vars, now, small = 0):
         for i, idx in enumerate(top_3_idx):
             print(f"建议位置：{idx} 得分:{(int(exp[idx] * 100)) / 100}")
 
-    return comb, z
+    return z, mx
 
 
 # 计算某个局面的最终期望得分
@@ -187,7 +212,6 @@ def expScore(comb, lines, vars):
     for i in range(0, 20):
         decide.append([0, 0])
     needs = [0] * 10
-    lineNeeds = [0] * 15
 
 
     # 计算0方块的分数
@@ -235,8 +259,6 @@ def expScore(comb, lines, vars):
         # 计算每个数字有多少行
         if num != 0 and num != 10:
             needs[num] = needs[num] + 1
-        # 记录该行需要多少方块
-        lineNeeds[i] = lineNeeds[i] + 1
 
     # 降低多排得分比例
     for i in range(1, 10):
@@ -256,7 +278,7 @@ def expScore(comb, lines, vars):
             sum = sum - scale * vars[8] * decide[i][1]
         if decide[i][0] == 3:
             sum = sum - scale * vars[9] * decide[i][1]
-    
+
     return sum
 
 
